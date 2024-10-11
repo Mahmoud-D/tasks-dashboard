@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import AddTaskDialog from "./components/AddTaskDialog";
 import { Button } from "./components/ui/button";
@@ -9,10 +9,15 @@ import "./App.css";
 import TaskCard from "./components/TaskCard";
 
 function App() {
-  const [tasks, setTasks] = useState<TTask[]>([]);
+  const [tasks, setTasks] = useState<TTask[]>(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    return savedTasks ? JSON.parse(savedTasks) : [];
+  });
   const [currentTask, setCurrentTask] = useState<TCurrentTask>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
   // const handleEdit = (task: TTask) => {
   //   setCurrentTask(task);
   // };
@@ -81,6 +86,17 @@ function App() {
           onClose={handleCloseModal} // Close modal callback
         />
       )}
+
+      <Button
+        className="mt-4"
+        type="button"
+        onClick={() => {
+          localStorage.removeItem("tasks");
+          setTasks([]);
+        }}
+      >
+        Clear All Tasks
+      </Button>
     </div>
   );
 }
